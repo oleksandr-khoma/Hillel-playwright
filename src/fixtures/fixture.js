@@ -1,4 +1,4 @@
-import { test as base } from "@playwright/test";
+import { test as base, request } from "@playwright/test";
 import HomePage from "../../pageobjects/HomePage.js";
 import { USERS } from "../data/users.js";
 import { STORAGE_STATE_USER_PATH } from "../data/constants/storageState.js";
@@ -34,5 +34,14 @@ export const test = base.extend({
 
     // Clean up
     await ctx.close();
+  },
+  apiClient: async ({ browser, MESSAGES }, use) => {
+    const client = await request.newContext({
+      storageState: STORAGE_STATE_USER_PATH,
+    });
+    // Usage
+    await use(client);
+    // Clean up
+    await client.dispose();
   },
 });
