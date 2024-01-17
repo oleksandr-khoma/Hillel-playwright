@@ -1,50 +1,42 @@
-import axios from "axios";
 import { USERS } from "../../../../src/data/users.js";
 import { expect, test } from "@playwright/test";
-import { wrapper } from "axios-cookiejar-support";
-import { CookieJar } from "tough-cookie";
-import { negativeFixtures } from "./fixtures/createCar.fixtures.js";
+import { negativeFixtures } from "./fixtures/postCars.fixtures.js";
+import APIClient from "../../../../src/client/APIClient.js";
 
 test.describe("Cars", () => {
-  test.describe("Create", () => {
-    test.describe("Positive case", () => {
-      let client = axios.create({
-        baseURL: "https://qauto.forstudy.space/api",
-      });
-
+  test.describe("Post", () => {
+    test.describe("Positive case (Use header)", () => {
+      let client;
       let brands;
 
       test.beforeAll(async () => {
-        const signInResponse = await client.post("/auth/signin", {
-          email: USERS.KHOMA.email,
-          password: USERS.KHOMA.password,
-          remember: false,
-        });
-        const cookie = signInResponse.headers["set-cookie"][0].split(";")[0];
-        client = axios.create({
-          baseURL: "https://qauto.forstudy.space/api",
-          headers: {
-            cookie,
-          },
-        });
+        client = await APIClient.authenticate(
+          USERS.KHOMA.email,
+          USERS.KHOMA.password
+        );
 
-        const response = await client.get("/cars/brands");
+        // GET /cars/brands
+        const response = await client.carController.getBrands();
         brands = response.data.data;
       });
 
       test.afterAll(async () => {
-        const userCars = await client.get("/cars");
+        // GET /cars
+        const userCars = await client.carController.getUserCars();
         await Promise.all(
-          userCars.data.data.map((car) => client.delete(`/cars/${car.id}`))
+          userCars.data.data.map((car) =>
+            // DELETE /cars/{id}
+            client.carController.deleteCarById(car.id)
+          )
         );
       });
 
       test("Create car", async () => {
         for (const brand of brands) {
           await test.step(`Create car brand ${brand.title}`, async () => {
-            const modelsResponse = await client.get(
-              `/cars/models?carBrandId=${brand.id}`
-            );
+            // GET /cars/models/{id}
+            const modelsResponse =
+              await client.carController.getModelsByBrandId(brand.id);
             const models = modelsResponse.data.data;
 
             for (const model of models) {
@@ -54,8 +46,9 @@ test.describe("Cars", () => {
                   carModelId: model.id,
                   mileage: Math.floor(Math.random() * 100),
                 };
-                const createCarResponse = await client.post(
-                  "/cars",
+
+                // POST /cars
+                const createCarResponse = await client.carController.createCar(
                   createCarReqBody
                 );
                 expect(
@@ -76,31 +69,20 @@ test.describe("Cars", () => {
 test.describe("Cars", () => {
   test.describe("Create", () => {
     test.describe("Negative cases", () => {
-      const jar = new CookieJar();
-
-      let client = wrapper(
-        axios.create({
-          baseURL: "https://qauto.forstudy.space/api",
-          jar,
-          validateStatus: (status) => status < 501,
-        })
-      );
-      let brands;
+      let client;
 
       test.beforeAll(async () => {
-        await client.post("/auth/signin", {
-          email: USERS.KHOMA.email,
-          password: USERS.KHOMA.password,
-          remember: false,
-        });
-
-        const response = await client.get("/cars/brands");
-        brands = response.data.data;
+        client = await APIClient.authenticate(
+          USERS.KHOMA.email,
+          USERS.KHOMA.password
+        );
       });
 
       for (const { title, inputData, expectedData } of negativeFixtures) {
         test(title, async () => {
-          const createCarResponse = await client.post("/cars", inputData);
+          const createCarResponse = await client.carController.createCar(
+            inputData
+          );
           expect(createCarResponse.status, "Status code should be valid").toBe(
             expectedData.statusCode
           );
