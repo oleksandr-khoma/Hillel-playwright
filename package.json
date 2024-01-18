@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "Repository for QA automation course (Playwright framework)",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test:ui": "npx playwright test --ui",
+    "test:api": "npx playwright test --project='API tests'"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -13,6 +16,9 @@
   },
   "dependencies": {
     "@faker-js/faker": "^8.3.1",
-    "dotenv": "^16.3.1"
+    "axios": "^1.6.5",
+    "axios-cookiejar-support": "^5.0.0",
+    "dotenv": "^16.3.1",
+    "tough-cookie": "^4.1.3"
   }
 }

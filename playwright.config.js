@@ -31,6 +31,11 @@ module.exports = defineConfig({
       name: "e2e chrome",
       use: { ...devices["Desktop Chrome"] },
       dependencies: ["global-setup"],
+      testMatch: "/tests/e2e/**/*.spec.js",
+    },
+    {
+      name: "API tests",
+      testMatch: "/tests/api/**/*.spec.js",
     },
   ],
 });
