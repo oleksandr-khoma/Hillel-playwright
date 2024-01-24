@@ -1,0 +1,7 @@
+services:
+  playwright-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./playwright-report:/playwright-tests/playwright-report
