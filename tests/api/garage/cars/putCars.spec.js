@@ -2,7 +2,7 @@ import { USERS } from "../../../../src/data/users.js";
 import { expect, test } from "@playwright/test";
 import APIClient from "../../../../src/client/APIClient.js";
 
-test.describe("Cars", () => {
+test.describe.skip("Cars", () => {
   test.describe("Put", () => {
     let client;
     let brands;

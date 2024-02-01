@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright:v1.40.0-jamy
+FROM mcr.microsoft.com/playwright:v1.40.0-jammy
 
 RUN mkdir playwright-tests
 
